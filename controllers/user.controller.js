@@ -93,7 +93,7 @@ function commands(req, res){
             var command = params.command;
     
             if(command.split(' ')[1]){
-                User.findOne({username: params.command.split(' ')[1]}, {password: 0}, (err, profileFound)=>{
+                User.findOne({username: params.command.split(' ')[1].toLowerCase()}, {password: 0}, (err, profileFound)=>{
                     if(err){
                         res.status(500).send({message: 'Error general al realizar la peticion'});
                     }else if(profileFound){
@@ -131,7 +131,9 @@ function commands(req, res){
                             if(err){
                                 res.status(500).send({message: 'Error general al realizar la peticion de usuario'});
                             }else if(tweetPost){
-                                res.send({message: 'Tweet posteado correctamente', tweetPost});
+                                var tweetText = tweetPost.tweets;
+                                var tweetUser = tweetPost.username;
+                                res.send({message: 'Tweet posteado correctamente', tweetText, tweetUser});
                             }else{
                                 res.status(418).send({message: 'No se ha podidod postear el tweet en tu perfil'})
                             }
@@ -223,13 +225,11 @@ function commands(req, res){
                 res.send({message: 'Debe de ingresar los datos necesarios en este orden, Instruccion, Id del Tweet que desa editar y Nuevo texto del Tweet'})
             }    
             break;
-        case('follow'):
+        case('follow'): 
             var params = req.body;
-            var command = params.command;
-            var us = params.command.split(' ')[1];
-    
+            var command = params.command;   
             if(command.split(' ')[1]){
-                User.findOne({username: command.split(' ')[1]}, (err, userFound)=>{
+                User.findOne({username: command.split(' ')[1]   }, (err, userFound)=>{
                     if(err){
                         res.status(500).send({message: 'Error general al realizar la peticion'});
                     }else if(userFound){
@@ -237,35 +237,39 @@ function commands(req, res){
                             if(err){
                                 res.status(500).send({message: 'Error general al realizar la peticion 3'});
                             }else if(user1Found){
-                                var exist = false
-                                for(var i = 0; i < user1Found.followed.length; i++){
-                                    if(user1Found.followed[i] == us){
-                                        exist = true;
-                                        i = user1Found.followed.length;
-                                    }
-                                }
-                                if(exist == true){
-                                    res.send({message: 'Ya sigues a este usuario'});
-                                }else if(exist == false){
-                                    User.findOneAndUpdate({username: command.split(' ')[1]}, {followers: Number(userFound.followers + 1)}, {new: true}, (err, userUpdated)=>{
-                                        if(err){
-                                            res.status(500).send({message: 'Error general al realizar la peticion 1'})
-                                        }else if(userUpdated){
-                                            User.findOneAndUpdate({username: req.user.username}, {$push: {followed:command.split(' ')[1]}}, {new: true}, (err, userUpdated)=>{
-                                                if(err){
-                                                    res.status(500).send({message: 'Error general al realizar la peticion 2'});
-                                                }else if(userUpdated){
-                                                    res.send({message: 'Estas siguiendo a este usuario ' + userFound.username})
-                                                }else{
-                                                    res.status(418).send({message: 'No se puede seguir a este usuario'});
-                                                }
-                                            });
-                                        }else{
-                                            res.status(418).send({message: 'No se puede añadir este usuario a tu lista de seguidores'})
-                                        }
-                                    });
+                                if(user1Found.username == command.split(' ')[1]){
+                                    res.send({message: 'No puedes seguir a tu propio usuario'});
                                 }else{
-                                    res.send({message: 'Ha ocurrido un error al buscar el usuario en tu perfil'})
+                                    var exist = false
+                                    for(var i = 0; i < user1Found.followed.length; i++){
+                                        if(user1Found.followed[i] == command.split(' ')[1]){
+                                            exist = true;
+                                            i = user1Found.followed.length;
+                                        }
+                                    }
+                                    if(exist == true){
+                                        res.send({message: 'Ya sigues a este usuario'});
+                                    }else if(exist == false){
+                                        User.findOneAndUpdate({username: command.split(' ')[1]}, {followers: Number(userFound.followers + 1)}, {new: true}, (err, userUpdated)=>{
+                                            if(err){
+                                                res.status(500).send({message: 'Error general al realizar la peticion 1'})
+                                            }else if(userUpdated){
+                                                User.findOneAndUpdate({username: req.user.username}, {$push: {followed:command.split(' ')[1]}}, {new: true}, (err, userUpdated)=>{
+                                                    if(err){
+                                                        res.status(500).send({message: 'Error general al realizar la peticion 2'});
+                                                    }else if(userUpdated){
+                                                        res.send({message: 'Estas siguiendo a este usuario ' + userFound.username})
+                                                    }else{
+                                                        res.status(418).send({message: 'No se puede seguir a este usuario'});
+                                                    }
+                                                });
+                                            }else{
+                                                res.status(418).send({message: 'No se puede añadir este usuario a tu lista de seguidores'})
+                                            }
+                                        });
+                                    }else{
+                                        res.send({message: 'Ha ocurrido un error al buscar el usuario en tu perfil'})
+                                    }
                                 }
                             }else{
                                 res.status(418).send({message: 'Ha ocurrido un error al encontrar obtener los datos'});
@@ -345,7 +349,7 @@ function commands(req, res){
             var params = req.body
             var command = params.command.split(' ')[1];
             if(command){
-                User.findOne({username: command}, {password: 0}, (err, userFound)=>{
+                User.findOne({username: command}, (err, userFound)=>{
                     if(err){
                         res.status(500).send({message: 'Error general al realizar la peticion'});
                     }else if(userFound){
