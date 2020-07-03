@@ -31,7 +31,6 @@ function commands(req, res){
                         user.password = params.command.split(' ')[5];
                         user.country = params.command.split(' ')[6];
                         user.age = params.command.split(' ')[7];
-                        user.role = 'ADMIN';
                         user.followers = 0;
     
                         bcrypt.hash(params.command.split(' ')[5], null, null, (err, passwordHash)=>{
