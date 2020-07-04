@@ -54,7 +54,7 @@ function commands(req, res){
                     }    
                 });
         }else{
-            res.status(404).send({message: 'Debe de ingresar los datos necesarios que son: Nombre, Apellidos, Username, Email, Contraseña, Pais y Edad en este orden'});
+            res.status(404).send({message: 'Debe de ingresar los datos necesarios que son: 1 Nombre, 1 Apellidos, Username, Email, Contraseña, Pais y Edad en este orden'});
         }
             break;
         case('login'):
