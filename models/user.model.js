@@ -14,6 +14,7 @@ var userSchema = Schema({
     tweets:[{type: Schema.Types.ObjectId, ref:'tweet'}],
     followers: Number,
     followed:[],
+    likeTweet:[],
     
 })
 

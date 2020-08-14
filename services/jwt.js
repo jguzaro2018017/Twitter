@@ -11,7 +11,6 @@ exports.createToken = (user)=>{
         lastname: user.lastname,
         username: user.username,
         email: user.email,
-        role: user.role,
         iat: moment().unix(),
         exp: moment().add(45, "minutes").unix()
     }
